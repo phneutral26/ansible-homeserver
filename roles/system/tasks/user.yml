@@ -1,0 +1,40 @@
+---
+- name: make groups
+  group:
+    name: "{{ item }}"
+  loop:
+    - docker
+    - samba
+    - wheel
+    - "{{ username }}"
+
+- name: Ensure non-root user is created
+  user:
+    name: "{{ username }}"
+    password: "{{ password | password_hash('sha512') }}"
+    groups:
+      - sudo
+      - docker
+      - wheel
+      - users
+    append: yes
+    shell: "{{ shell }}"
+    update_password: on_create
+
+- name: Enable passwordless SUDO for "{{ username }}"
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "^%wheel"
+    line: "{{ username }} ALL=(ALL) NOPASSWD: ALL"
+    validate: "/usr/sbin/visudo -cf %s"
+
+- name: Supress Login Message
+  file:
+    path: "/home/{{ username }}/.hushlogin"
+    mode: 0644
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    modification_time: preserve
+    access_time: preserve
+    state: touch
+

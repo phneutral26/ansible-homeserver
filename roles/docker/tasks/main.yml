@@ -1,0 +1,28 @@
+---
+
+- name: install docker-py
+  pip: name=docker-py state=latest
+  notify: restart docker
+
+- name: add volume directories
+  file:
+    dest: "{{ item }}"
+    state: directory
+    mode: "0777"
+  with_items:
+    - "{{ volume }}"
+    - "{{ movie }}"
+    - "{{ tv }}"
+    - "{{ download }}"
+    - "{{ code }}"
+    - "{{ media }}"
+    - "{{ data }}"
+
+- name: make media containers
+  include: media_containers.yml
+  
+- name: make home containers
+  include: home_containers.yml
+
+- name: make sys containers
+  include: sys_containers.yml

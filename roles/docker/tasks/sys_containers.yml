@@ -1,0 +1,47 @@
+---
+
+- name: make portainer container
+  docker_container:
+    name: portainer
+    image: portainer/portainer-ce
+    state: started
+    privileged: true
+    ports:
+      - "9000:9000"
+    volumes:
+      - "{{ docker_dir }}/portainer:/data"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    restart_policy: always
+
+- name: make dash. container
+  docker_container:
+    name: dashdot
+    image: mauricenino/dashdot
+    state: started
+    ports:
+      - 3001:3001
+    volumes:
+      - "/:/mnt/host:ro"
+    privileged: yes
+
+- name: make ip container
+  docker_container:
+    name: ifconfig.io
+    image: georgyo/ifconfig.io
+    ports:
+      - 8080:8080
+
+- name: make librespeed container
+  docker_container:
+    name: librespeed
+    image: lscr.io/linuxserver/librespeed
+    volumes:
+      - "{{ docker_dir }}/librespeed:/config"
+    ports:
+      - 5001:80
+    env:
+      PUID="{{ puid }}"
+      PGID="{{ guid }}"
+      TZ="{{ timezone }}"
+      PASSWORD="{{ password }}"
+    restart_policy: always

@@ -1,0 +1,29 @@
+---
+
+- name: Check if {{media_drive_label}} is present in /etc/fstab
+  lineinfile:
+    path: /etc/fstab
+    line: "{{fstab_options}}"
+    state: present
+  register: line_result
+
+- name: Add {{media_drive_label}} to /etc/fstab
+  lineinfile:
+    path: /etc/fstab
+    insertafter: "EOF"
+    line: "{{fstab_options}}"
+  register: drive_added
+  when: line_result.changed
+  
+
+- name: Mount "{{media_drive_label}}"
+  command: mount -a
+  register: drive_mounted
+  when: drive_added
+ 
+
+
+- name: Ensure permissions on Mount Point are set correctly
+  file: path={{mount_point}} owner={{username}} group={{username}} mode=0775 state=directory recurse=yes
+  when: drive_mounted
+

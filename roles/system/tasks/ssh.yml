@@ -1,0 +1,6 @@
+- name: Harden SSH-Config
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^#PasswordAuthentication yes"
+    line:   "PasswordAuthentication no"
+  notify: Restart SSHD on change 

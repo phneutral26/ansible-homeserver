@@ -1,0 +1,33 @@
+---
+
+username: phil
+puid: "1000"
+guid: "1000"
+timezone: Europe/Berlin
+packages:
+  - vim
+  - neofetch
+  - tmux
+  - htop
+  - speedtest-cli
+  - unzip
+  - zip
+shell: /bin/bash
+
+pip_install_packages:
+  - name: docker
+
+### DOCKER ###
+docker_apt_gpg_key: "https://download.docker.com/linux/ubuntu/gpg"
+docker_apt_repository: "deb https://download.docker.com/linux/ubuntu jammy stable"
+
+### MEDIA DRIVE ###
+mount_point: /mnt/media
+media_drive_label: media
+media_start: present
+fstab_options: /dev/disk/by-label/{{media_drive_label}} {{mount_point}} ext4 rw,exec,auto,user,sync 0 2
+
+lan_network: 192.168.178.0/24
+server_ip: 192.168.178.170
+
+vpn_prov: mullvad

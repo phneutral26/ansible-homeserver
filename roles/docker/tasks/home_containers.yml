@@ -1,0 +1,40 @@
+---
+
+- name: make syncthing container
+  docker_container:
+    name: syncthing
+    image: syncthing/syncthing
+    state: started
+    env:
+      PUID="{{ puid }}"
+      PGID="{{ guid }}"
+    volumes:
+      - "{{ data }}/syncthing:/var/syncthing"
+    ports:
+      - 8384:8384
+      - 22000:22000/tcp # TCP file transfers
+      - 22000:22000/udp # QUIC file transfers
+      - 21027:21027/udp # Receive local discovery broadcasts
+    restart_policy: unless-stopped
+
+- name: make homeassistant container
+  docker_container:
+    name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - "{{ docker_dir }}/hass:/config"
+    network_mode: host
+    restart_policy: always
+    privileged: true
+    env:
+      TZ="{{ timezone }}"
+
+- name: make vaultwarden container
+  docker_container:
+    name: vaultwarden
+    image: vaultwarden/server
+    volumes:
+      - "{{ docker_dir }}/vaultwarden:/data"
+    ports:
+      - 4444:80
+    restart_policy: always

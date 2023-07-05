@@ -1,0 +1,134 @@
+---
+
+- name: make delugevpn container
+  docker_container:
+    name: delugevpn
+    image: binhex/arch-delugevpn
+    state: started
+    privileged: true
+    ports:
+      - 8112:8112
+      - 8118:8118
+      - 58846:58846
+      - 58946:58946
+    volumes:
+      - "{{ media }}:/media"
+      - "{{ download }}:/download"
+      - "{{ docker_dir }}/delugevpn:/config"
+    env:
+      VPN_ENABLED=yes
+      VPN_PROV="{{vpn_prov}}"
+      VPN_CLIENT=wireguard
+      LAN_NETWORK="{{lan_network}}"
+      DELUGE_ENABLE_WEBUI_PASSWORD=yes
+      UMASK=000
+      PUID="{{ puid }}"
+      GUID="{{ guid }}"
+    capabilities:
+      - NET_ADMIN
+    restart_policy: always
+
+- name: make radarr container
+  docker_container:
+    name: radarr
+    image: binhex/arch-radarr
+    state: started
+    ports:
+      - 7878:7878
+    env:
+      PUID="{{ puid }}"
+      PGID="{{ guid }}"
+      TZ="{{ timezone }}"
+    volumes:
+      - "{{ movie }}:/movies"
+      - "{{ download }}:/download"
+      - "{{ docker_dir}}/radarr:/config"
+    restart_policy: always
+
+- name: make sonarr container
+  docker_container:
+    name: sonarr
+    image: binhex/arch-sonarr
+    state: started
+    ports:
+      - "8989:8989"
+    env:
+      PUID="{{ puid }}"
+      PGID="{{ guid }}"
+      TZ="{{ timezone }}"
+    volumes:
+      - "/dev/rtc:/dev/rtc:ro"
+      - "{{ docker_dir }}/sonarr/:/config"
+      - "{{ tv }}:/tv"
+      - "{{ download }}:/downloads"
+    restart_policy: always
+
+- name: make jackett container
+  docker_container:
+    name: jackett
+    image: binhex/arch-jackett
+    state: started
+    ports:
+      - "9117:9117"
+    env:
+      PUID="{{ puid }}"
+      PGID="{{ guid }}"
+      TZ="{{ timezone }}"
+    volumes:
+      - "{{ docker_dir }}/jackett:/config"
+
+- name: make jellyfin container
+  docker_container:
+    name: jellyfin
+    image: jellyfin/jellyfin
+    state: started
+    ports:
+      - "8096:8096"
+    env:
+      PUID="{{ puid }}"
+      PGID="{{ guid }}"
+      TZ="{{ timezone }}"
+    volumes:
+      - "{{ media }}:/media"
+      - "{{ docker_dir }}/jellyfin:/config"
+    restart_policy: always
+
+- name: make delugevpn container
+  docker_container:
+    name: delugevpn
+    image: binhex/arch-delugevpn
+    state: started
+    privileged: true
+    ports:
+      - 8112:8112
+      - 8118:8118
+      - 58846:58846
+      - 58946:58946
+    volumes:
+      - "{{ media }}:/media"
+      - "{{ download }}:/download"
+      - "{{ docker_dir }}/delugevpn:/config"
+    env:
+      VPN_ENABLED=yes
+      VPN_PROV="{{vpn_prov}}"
+      VPN_CLIENT=wireguard
+      LAN_NETWORK="{{lan_network}}"
+      DELUGE_ENABLE_WEBUI_PASSWORD=yes
+      UMASK=000
+      PUID="{{ puid }}"
+      GUID="{{ guid }}"
+    capabilities:
+      - NET_ADMIN
+    restart_policy: always
+
+- name: make jellyseerr container
+  docker_container:
+    name: jellyseer
+    image: fallenbagel/jellyseerr
+    volumes:
+      - "{{ docker_dir }}/jellyseerr:/app/config"
+    ports:
+      - 5055:5055
+    env:
+      TZ="{{ timezone }}"
+    restart_policy: always
